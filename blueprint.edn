@@ -9,4 +9,27 @@
  :itonami.blueprint/required-technologies [:robotics :identity :forms :audit-ledger]
  :itonami.blueprint/optional-technologies [:telemetry :optimization :dmn :bpmn]
  :itonami.blueprint/status :public-oss
- :itonami.blueprint/maturity :implemented}
+ :itonami.blueprint/maturity :implemented
+ :itonami.blueprint/implemented-slice
+ "CerealOpsAdvisor ⊣ Field Operations Governor, langgraph-clj
+ StateGraph (langgraph.graph, cerealops.operation/build), append-only
+ audit ledger (cerealops.store/ledger + append-ledger!, MemStore and a
+ DatomicStore backed by langchain.db via langchain-store.core). A
+ back-office OPERATIONS COORDINATION actor for cereal-growing field
+ management (wheat/maize/barley/sorghum/oats/rye/millet) -- not direct
+ field-equipment operation authority and not
+ pesticide-application-decision authority. Four ops
+ (`:log-field-record` / `:schedule-field-operation` /
+ `:flag-crop-health-concern` / `:order-supplies`), all `:effect
+ :propose` only. Five HARD invariants (field-not-registered,
+ no-execution, equipment-or-pesticide-decision-blocked, op-not-allowed,
+ field-record-invalid) plus independent cost/acreage/confidence
+ verification (`cerealops.registry`) elaborate this blueprint's
+ Governor. Crop-health-concern flagging ALWAYS escalates to a human
+ farmer/agronomist via the compiled graph's `:request-approval` node
+ (`interrupt-before`, checkpoint-based resume); `:log-field-record` and
+ `:schedule-field-operation` are the ops eligible to auto-commit, and
+ only at phase 3 when the Governor is clean. Every commit/hold/
+ approval-rejected decision lands in the append-only ledger -- 32
+ tests / 105 assertions green (`clojure -M:dev:test`), demo runnable
+ end-to-end against both Store backends (`clojure -M:dev:run`)."}

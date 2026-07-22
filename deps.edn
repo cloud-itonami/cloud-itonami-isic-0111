@@ -2,26 +2,24 @@
  ;; langgraph brings langchain transitively (both zero-/single-dep,
  ;; all .cljc -> portable to JVM / SCI / ClojureScript / GraalVM). It lives
  ;; in the kotoba-lang org of this workspace (transferred + renamed from
- ;; com-junkawasaki/langgraph-clj / com-junkawasaki/langchain-clj).
- ;;
- ;; This cereal-growing vertical is SELF-CONTAINED: there is no
- ;; `kotoba-lang/cereal-growing` to delegate field-registration /
- ;; cost-threshold / closed-op-allowlist checks to, so those pure functions
- ;; live in `cerealops.registry` / `cerealops.facts` rather than wrapping
- ;; an external lib. This repo is standalone (forkable outside the
- ;; workspace); the :local/root paths only resolve inside the monorepo
- ;; checkout -- a standalone fork should override them with git
- ;; coordinates. For testing/CI without langgraph, use the core logic in
- ;; run-operation; production deployment requires the langgraph StateGraph
- ;; integration.
- :deps {}
+ ;; com-junkawasaki/langgraph-clj / com-junkawasaki/langchain-clj). This
+ ;; repo is standalone (forkable outside the workspace); the :local/root
+ ;; paths only resolve inside the monorepo checkout -- a standalone fork
+ ;; should override them with git coordinates.
+ :deps {io.github.kotoba-lang/langgraph
+        {:local/root "../../kotoba-lang/langgraph"}
+        ;; langchain-store: the shared langchain.db store seam (EDN-blob
+        ;; codec + identity schema + event-log read/append helpers) that
+        ;; ~190 cloud-itonami actors hand-roll (ADR-2607141600);
+        ;; cerealops.store's DatomicStore uses it instead of its own
+        ;; enc/dec* two-liner.
+        io.github.kotoba-lang/langchain-store
+        {:local/root "../../kotoba-lang/langchain-store"}}
  :aliases
  {;; offline workspace dev -- pin transitive langchain to local checkout
   :dev {:override-deps
         {io.github.kotoba-lang/langchain
-         {:local/root "../../kotoba-lang/langchain"}
-        io.github.kotoba-lang/langgraph
-        {:local/root "../../kotoba-lang/langgraph"}}}
+         {:local/root "../../kotoba-lang/langchain"}}}
   ;; clojure -M:dev:run  -> drive the demo through one OperationActor
   :run {:main-opts ["-m" "cerealops.sim"]}
   :test {:extra-paths ["test"]

@@ -12,14 +12,21 @@ transparency over decisions.
 `CerealOpsAdvisor` (`cerealops.advisor`) and the independent
 `FieldOperationsGovernor` (`cerealops.governor`), composed by
 `cerealops.operation` following the itonami actor pattern (ADR-2607011000):
-`advise -> govern -> phase-gate -> commit | escalate | hold`. 30 tests /
-96 assertions green (`clojure -M:test`).
-
-`cerealops.operation` is a synchronous stub of this flow (see its
-docstring) — production wiring into a `langgraph-clj` StateGraph with
-`interrupt-before`/checkpoint-based human-in-the-loop resume for escalated
-operations is deferred, mirroring `cloud-itonami-isic-0141`'s own
-`cattleops.operation`.
+`intake -> advise -> govern -> decide -> commit | request-approval -> commit
+| hold`, compiled to a real `langgraph-clj` `StateGraph`
+(`langgraph.graph/state-graph` + `compile-graph`, mirroring
+`marketentry.operation`, cloud-itonami-iso3166-ago) with
+`interrupt-before #{:request-approval}` and checkpoint-based
+human-in-the-loop resume for escalated operations. Every commit/hold/
+approval-rejected decision fact is appended to `cerealops.store`'s
+append-only audit ledger (`ledger`/`append-ledger!`), implemented on
+both `MemStore` and a `DatomicStore` (backed by `langchain.db` via
+`kotoba-lang/langchain-store`) that pass the same store-contract test
+(`test/cerealops/store_contract_test.cljc`). 32 tests / 105 assertions
+green (`clojure -M:dev:test`); the demo runner
+(`clojure -M:dev:run`) drives the compiled graph end-to-end through a
+commit path, an escalate→approve→commit path, an escalate→reject→hold
+path, and a hard-hold path, printing the resulting audit ledger.
 
 ## What this does NOT do
 
@@ -112,12 +119,18 @@ Mirrors `cloud-itonami-isic-0141` (`cattleops.*`) module-for-module:
 
 - `cerealops.facts` — reference data: supply-category cost thresholds, cereal crops
 - `cerealops.registry` — pure independent verification functions (cost/acreage/confidence)
-- `cerealops.store` — `Store` protocol + in-memory `MemStore` (field registration lookup)
-- `cerealops.advisor` — `Advisor` protocol + `MockAdvisor` (the sealed LLM/decision node)
+- `cerealops.store` — `Store` protocol: field registration lookup + append-only audit
+  ledger, implemented by `MemStore` (in-memory, default) and `DatomicStore`
+  (`langchain.db`-backed, via `kotoba-lang/langchain-store`)
+- `cerealops.advisor` — `Advisor` protocol + `MockAdvisor` (the sealed LLM/decision
+  node; a real-LLM `Advisor` implementation is the documented next seam, same as
+  every sibling cloud-itonami actor's advisor)
 - `cerealops.governor` — `FieldOperationsGovernor`: hard invariants + escalation gates
 - `cerealops.phase` — 0→3 rollout phase gate
-- `cerealops.operation` — composes advisor → governor → phase into one operation run
-- `cerealops.sim` — demo runner (`clojure -M:run`)
+- `cerealops.operation` — compiles the `langgraph-clj` `StateGraph`: advise → govern →
+  decide → commit | request-approval → commit | hold, with `interrupt-before` +
+  checkpoint-based resume for escalated operations
+- `cerealops.sim` — demo runner (`clojure -M:dev:run`)
 
 ## Capability layer
 
@@ -135,10 +148,15 @@ See [`docs/business-model.md`](docs/business-model.md) and
 ## Testing
 
 ```bash
-clojure -M:test   # run the test suite
-clojure -M:lint   # clj-kondo, 0 errors / 0 warnings
-clojure -M:run    # demo runner
+clojure -M:dev:test   # run the test suite (langgraph/langchain-store resolved via local sibling checkouts)
+clojure -M:lint       # clj-kondo, 0 errors / 0 warnings
+clojure -M:dev:run    # demo runner -- drives the compiled StateGraph end-to-end
 ```
+
+`:dev` pins the transitive `langchain` dependency to the in-monorepo local
+checkout (`../../kotoba-lang/langchain`) for offline workspace development;
+a standalone fork should override `deps.edn`'s `:local/root` coordinates
+with git coordinates (see `deps.edn`'s own comment).
 
 ## License
 
