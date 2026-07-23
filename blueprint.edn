@@ -1,4 +1,4 @@
-{:itonami.blueprint/id "cloud-itonami-0111"
+{:itonami.blueprint/id "cloud-itonami-isic-0111"
  :itonami.blueprint/name "Cereal-Growing Operations Coordination"
  :itonami.blueprint/isic-rev5 "0111"
  :itonami.blueprint/domain :agriculture/cereal-growing
