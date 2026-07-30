@@ -1,1 +1,4 @@
-.cpcache/
+# The install pulls a ~109 MB workerd binary, past GitHub's per-file limit.
+node_modules/
+dist/
+.shadow-cljs/
