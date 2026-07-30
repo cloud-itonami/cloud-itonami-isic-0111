@@ -14,9 +14,22 @@
         ;; cerealops.store's DatomicStore uses it instead of its own
         ;; enc/dec* two-liner.
         io.github.kotoba-lang/langchain-store
-        {:local/root "../../kotoba-lang/langchain-store"}}
+        {:local/root "../../kotoba-lang/langchain-store"}
+        ;; The HOST half of this actor, shared with the marketplace family
+        ;; rather than reimplemented. Its own docstring says it is written
+        ;; "for any actor"; this is the first non-marketplace actor to use
+        ;; it. cloud-itonami-isic-6492 took the other road and carries 1,229
+        ;; lines of edge, 1,003 of them generic.
+        io.github.kotoba-lang/marketplace
+        {:local/root "../../kotoba-lang/marketplace"}
+        ;; kotobase.net client, for the host half only (cerealops.edge.*):
+        ;; q / pull / datoms / transact under a per-request CACAO.
+        io.github.kotoba-lang/kotobase-client
+        {:local/root "../../kotoba-lang/kotobase-client"}}
  :aliases
- {;; offline workspace dev -- pin transitive langchain to local checkout
+ {;; the Worker build's classpath (shadow-cljs :deps {:aliases [:cljs]})
+  :cljs {:extra-deps {thheller/shadow-cljs {:mvn/version "2.28.20"}}}
+  ;; offline workspace dev -- pin transitive langchain to local checkout
   :dev {:override-deps
         {io.github.kotoba-lang/langchain
          {:local/root "../../kotoba-lang/langchain"}}}

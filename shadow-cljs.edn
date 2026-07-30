@@ -1,0 +1,10 @@
+;; The cereal-ops actor's Worker. :esm, same shape as
+;; cloud-itonami-marketplace-order's build — this actor deliberately
+;; reuses that family's host rather than growing its own.
+{:deps {:aliases [:cljs]}
+ :builds
+ {:worker
+  {:target :esm
+   :output-dir "dist"
+   :modules {:worker {:exports {default cerealops.edge.worker/app}}}
+   :compiler-options {:output-feature-set :es2020 :infer-externs :auto}}}}
