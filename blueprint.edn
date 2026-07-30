@@ -32,4 +32,12 @@
  only at phase 3 when the Governor is clean. Every commit/hold/
  approval-rejected decision lands in the append-only ledger -- 32
  tests / 105 assertions green (`clojure -M:dev:test`), demo runnable
- end-to-end against both Store backends (`clojure -M:dev:run`)."}
+ end-to-end against both Store backends (`clojure -M:dev:run`)."
+ ;; Deployed into the ai-gftd-repository-dispatch namespace (Workers for
+ ;; Platforms). A user Worker there has no URL of its own — it is reachable
+ ;; only through the dispatch Worker, so the address is the router plus this
+ ;; actor's repository name, which is also the catalog's :repo key.
+ ;; /health answers JSON, so it is declared as the probe path.
+ :itonami.blueprint/endpoint "https://itonami-fleet-dispatch.04-feasts-minded.workers.dev/cloud-itonami-isic-0111"
+ :itonami.blueprint/endpoint-kind :dispatch-namespace
+ :itonami.blueprint/health-path "/health"}
