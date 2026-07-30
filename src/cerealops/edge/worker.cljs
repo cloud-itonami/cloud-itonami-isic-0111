@@ -70,7 +70,13 @@
                    :context (when context (reader/read-string (pr-str context)))}
                   {:thread-id thread}))))))
 
-(defn- routes [client request env method path]
+(defn- routes
+  ;; Six parameters, not five. `marketplace.edge/serve` calls this with
+  ;; [client request env method path url] and an earlier version here took
+  ;; only the first five — it happened to work because ClojureScript does not
+  ;; enforce arity on a var call, which is exactly why it would have stayed
+  ;; wrong until `url` was needed.
+  [client request env method path _url]
   (cond
     (and (= method "GET") (= path "/health"))
     (js/Promise.resolve

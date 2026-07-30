@@ -2,3 +2,13 @@
 node_modules/
 dist/
 .shadow-cljs/
+
+# Secrets handed to `wrangler deploy --dispatch-namespace`. Workers for
+# Platforms has no `wrangler secret put` — the flag is simply not there — so a
+# namespaced user Worker takes its secrets from this file at upload time. It
+# holds the fleet's kotobase seed and must never be committed; the readable
+# copy lives in kagi as itonami-fleet-kotobase-seed.
+.dev.vars
+
+# Clojure CLI classpath cache — generated per machine.
+.cpcache/
