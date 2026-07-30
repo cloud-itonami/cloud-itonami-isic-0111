@@ -32,7 +32,7 @@ jobs:
         working-directory: orgs/cloud-itonami/cloud-itonami-isic-0111
         run: |
           grep -q 'cerealops' docs/samples/operator-console.html
-          test "$(wc -l < docs/samples/operator-console.html)" -gt 30
+          test "$(wc -c < docs/samples/operator-console.html)" -gt 30
           echo "ok"
       - name: commit when changed
         working-directory: orgs/cloud-itonami/cloud-itonami-isic-0111
