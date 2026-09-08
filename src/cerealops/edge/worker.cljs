@@ -34,7 +34,7 @@
   A durable checkpointer over the same kotobase store is what makes that
   route honest, and it is not in this change."
   (:require [cljs.reader :as reader]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [langgraph.graph :as g]
             [cerealops.edge.store :as kstore]
             [cerealops.operation :as operation]
