@@ -3,7 +3,7 @@
   "private": true,
   "comment": "shadow-cljs compiles src/cerealops/edge/worker.cljk -> dist/worker.js, the kotobase host for the cereal-ops actor. Same dependency set as cloud-itonami-marketplace-order because it uses the same shared host.",
   "scripts": {
-    "build": "shadow-cljs release worker",
+    "build": "amu compile --target wasm32-browser worker",
     "deploy": "npm run build && wrangler deploy --dispatch-namespace ai-gftd-repository-dispatch"
   },
   "devDependencies": {
