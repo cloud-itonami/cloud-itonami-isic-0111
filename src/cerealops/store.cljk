@@ -14,7 +14,7 @@
                         `langchain.db`'s `:db-api` (see langchain.kotoba-db).
 
   Both implement the same protocol and pass the same contract
-  (test/cerealops/store_contract_test.cljc).
+  (test/cerealops/store_contract_test.cljk).
 
   A registered field is the minimal unit of authority: a farm's field must
   be registered before ANY proposal referencing it can be considered by
