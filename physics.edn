@@ -1,0 +1,44 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:dev:physics` runs it.
+;;
+;; README "Robotics premise": a field-management robot keeps field records,
+;; schedules field operations and handles supplies for a cereal farm (ISIC
+;; 0111, growing of cereals except rice). Its physical work on the farm:
+;; hauling sacks of harvested grain from the field edge to the store, pumping
+;; irrigation water through the field mainline, and watching the stored grain
+;; warm up behind a sun-heated bin wall.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isic-0111"
+ :cases
+ [{:id :grain-sacks-field-to-store
+   :kind :transport
+   :procedure "field robot hauls 50 kg sacks of threshed grain along the farm track from the field edge to the grain store"
+   :params {:mass-kg 180.0 :distance-m 250.0 :v-max-mps 1.5 :a-max-mps2 0.5
+            :brake-decel-mps2 1.0 :drive-force-n 700.0 :crr 0.06
+            :cog-height-m 0.60 :support-half-length-m 0.50 :max-time-s 3600.0}
+   :sweep {:param :payload-kg :values [100.0 200.0 300.0 400.0 500.0]}
+   :quantity :cycle-time-s
+   :limit {:max 200.0 :basis "estimate: one track leg so the robot keeps pace with one combine unload cycle"}
+   :boundary {:lo 50.0 :hi 1500.0}}
+  {:id :irrigation-mainline
+   :kind :pipe-flow
+   :procedure "pump pushes irrigation water through the 400 m PVC mainline up to the centre of the wheat field"
+   :params {:diameter-m 0.10 :length-m 400.0 :roughness-m 1.5e-6
+            :density-kg-m3 998.0 :viscosity-pa-s 1.0e-3 :pump-efficiency 0.65 :elevation-m 3.0}
+   :sweep {:param :q-m3s :values [0.005 0.010 0.015 0.020 0.025]}
+   :quantity :pump-power-w
+   :limit {:max 5500.0 :basis "estimate: rated shaft power of a 5.5 kW farm irrigation pump"}
+   :boundary {:lo 0.001 :hi 0.05}}
+  {:id :grain-behind-sun-heated-bin-wall
+   :kind :thermal
+   :procedure "an afternoon of sun heats the steel bin wall; stored grain warms by conduction into the bulk"
+   :params {:conductivity-w-mk 0.13 :density-kg-m3 750.0 :specific-heat-j-kgk 1600.0
+            :t0-c 15.0 :t-hot-c 55.0 :h-front-w-m2k 50.0 :t-back-ambient-c 15.0 :h-back-w-m2k 0.0
+            :threshold-c 25.0 :duration-s 28800.0 :nodes 11}
+   :sweep {:param :thickness-m :values [0.03 0.05 0.10 0.20 0.30]}
+   :quantity :peak-back-c
+   :limit {:max 25.0 :basis "estimate: grain kept below about 25 C to slow stored-grain insect development"}
+   :boundary {:lo 0.02 :hi 0.50}}]}
