@@ -12,3 +12,4 @@ dist/
 
 # Clojure CLI classpath cache — generated per machine.
 .cpcache/
+.nbb/
